@@ -8,7 +8,7 @@
   :author "Joel Boehland <jboehland@gmail.com>"
   :version "0.1.0"
   :description "Tokenizers for embeddings, encodings, LLMs, etc. in Common Lisp."
-  :depends-on (:alexandria :serapeum :log4cl :cl-ppcre :drakma :clingon)
+  :depends-on (:alexandria :serapeum :log4cl :cl-ppcre :cl-ppcre-unicode :drakma :clingon)
   :serial t
   :components ((:module "src"
                 :components ((:file "packages")
@@ -26,7 +26,7 @@
 (defsystem tokenizers/tests
   :author "Joel Boehland <jboehland@gmail.com>"
   :version "0.1.0"
-  :depends-on (:tokenizers :fiveam)
+  :depends-on (:tokenizers :fiveam :cl-csv)
   :serial t
   :components ((:module "test"
                 :components ((:file "packages")

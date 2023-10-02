@@ -54,8 +54,6 @@
         when (string= encoding (getf config :name))
         return config
         finally (error "No config found for encoding ~a" encoding)))
-;; (get-config-for-encoding "cl100k_base")
-;; (get-config-for-encoding "Zcl100k_base")
 
 (defun get-config-for-model (model)
   "Using the *encoding-to-model* alist, find the encoding for the model
@@ -65,7 +63,6 @@
                         return enc
                         finally (error "No encoding found for model ~a" model))))
     (get-config-for-encoding encoding)))
-;; (get-config-for-model "gpt-42")
 
 (defun %mergable-ranks->hashtable (blobstring)
   (with-input-from-string (s blobstring)
@@ -192,6 +189,8 @@
   ;;Use the regex to split the text into (approximately) words
   (let* ((parts (cl-ppcre:all-matches-as-strings (split-regexp encoder) text))
          (parts-as-utf8-bytes (mapcar #'(lambda (part) (babel:string-to-octets part :encoding :utf-8)) parts)))
+    (assert (every #'string= parts (mapcar (lambda (bytes) (babel:octets-to-string bytes :encoding :utf-8)) parts-as-utf8-bytes)))
+    (log:info "parts: ~a" parts)
     ;; XXX--TODO: make token buffer size informed by the size of the input
     (let ((token-buffer (make-array 1024 :element-type 'integer :adjustable t :fill-pointer 0)))
       (loop :for part :in parts-as-utf8-bytes
@@ -201,15 +200,14 @@
       token-buffer)))
 
 (defmethod decode ((encoder basic-bpe-encoder) tokens)
-  (with-output-to-string (s)
+  (let ((output-bytes (make-array 1024 :element-type '(unsigned-byte 8) :adjustable t :fill-pointer 0)))
     (flet ((decode-token-to-bytes (token)
              (if-let ((special-token (gethash token (special-tokens encoder))))
                special-token
                (gethash token (reverse-vocabulary encoder)))))
       (loop :for token :across tokens
-            :do (let ((token-bytes (decode-token-to-bytes token)))
-                  (loop :for byte :across token-bytes
-                        ;;XXX -- possible bug here, maybe we should use babel to convert octets to utf-8?
-                        :do (write-char (code-char byte) s))))
-      s)))
+            :do (let* ((token-bytes (decode-token-to-bytes token)))
+                       (loop :for tkbyte :across token-bytes
+                             :do (vector-push-extend tkbyte output-bytes)))))
+      (babel:octets-to-string output-bytes :encoding :utf-8)))
 
