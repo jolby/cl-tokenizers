@@ -14,7 +14,7 @@ cl-tokenizers is not in quicklisp. It will need to be installed in the local-pro
 #+begin_src lisp
 CL-USER>(ql:quickload :tokenizers)
 > (:TOKENIZERS)
-CL-USER>(defparameter *cl100k-encoder* (tokenizers:get-encoder :tiktokken "cl100k_base"))
+CL-USER>(defparameter *cl100k-encoder* (tokenizers:get-encoder :tiktoken "cl100k_base"))
 > *CL100K-ENCODER*
 CL-USER>(tokenizers:encode *cl100k-encoder* "hello world")
 > #(15339 1917)
