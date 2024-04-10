@@ -13,7 +13,7 @@
   :components ((:module "src"
                 :components ((:file "packages")
                              (:file "protocols")
-                             (:file "tiktokken"))))
+                             (:file "tiktoken"))))
   :in-order-to ((test-op (load-op "tokenizers/tests")))
   :perform (test-op (op c)
                     (unless
@@ -31,27 +31,27 @@
   :components ((:module "test"
                 :components ((:file "packages")
                              (:file "tokenizers-tests")
-                             (:file "tiktokken-tests"))))
+                             (:file "tiktoken-tests"))))
   :perform (test-op (op c)
                     (uiop:symbol-call
                      :fiveam :run!
                      (uiop:find-symbol* :tokenizers-suite
                                         :tokenizers-test.tokenizers-tests))))
 
-(defsystem tokenizers/tiktokken-bin
+(defsystem tokenizers/tiktoken-bin
   :author "Joel Boehland <jboehland@gmail.com>"
   :version "0.1.0"
-  :description "The tiktokken binary command line app."
+  :description "The tiktoken binary command line app."
   :depends-on (:clingon)
   :serial t
   :components ((:module "src"
                 :components ((:file "packages")
                              (:module "cli"
                               :components
-                              ((:file "tiktokken"))))))
+                              ((:file "tiktoken"))))))
   :build-operation "program-op"
-  :build-pathname "bin/tiktokken"
-  :entry-point "tokenizers.cli.tiktokken:main")
+  :build-pathname "bin/tiktoken"
+  :entry-point "tokenizers.cli.tiktoken:main")
 
 (defun %this-file ()
   (asdf:system-relative-pathname
@@ -72,7 +72,7 @@
     (uiop:run-program cmd)))
 
 #+(or) (ql:quickload '(:tokenizers))
-#+(or) (ql:quickload '(:tokenizers :tokenizers/tests :tokenizers/tiktokken-bin))
+#+(or) (ql:quickload '(:tokenizers :tokenizers/tests :tokenizers/tiktoken-bin))
 #+(or)(asdf:test-system :tokenizers)
-;; (tokenizers.cli.tiktokken:main)
-;; (dump-system-executable :tokenizers/tiktokken-bin)
+;; (tokenizers.cli.tiktoken:main)
+;; (dump-system-executable :tokenizers/tiktoken-bin)
