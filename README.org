@@ -1,7 +1,7 @@
 * cl-tokenizers
 Tokenizers used for encoding/embedding and LLMs.
 * Status
-This project is just getting started. Currently only the [[https://github.com/openai/tiktoken][OpenAI Tiktokken BPE]] encoding is supported. It would be great to get some more implemented!
+This project is just getting started. Currently only the [[https://github.com/openai/tiktoken][OpenAI Tiktoken BPE]] encoding is supported. It would be great to get some more implemented!
 * Installation
 cl-tokenizers is not in quicklisp. It will need to be installed in the local-projects quicklisp directory:
 
