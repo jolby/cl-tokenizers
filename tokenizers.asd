@@ -1,54 +1,51 @@
-(in-package :cl-user)
-
-(defpackage tokenizers-asd
-  (:use :cl :asdf))
-(in-package :tokenizers-asd)
-
-(defsystem tokenizers
+(asdf:defsystem tokenizers
   :author "Joel Boehland <jboehland@gmail.com>"
   :version "0.1.0"
+  :license "MIT"
   :description "Tokenizers for embeddings, encodings, LLMs, etc. in Common Lisp."
-  :depends-on (:alexandria :serapeum :log4cl :cl-ppcre :cl-ppcre-unicode :drakma :clingon)
+  :depends-on (:alexandria :cl-ppcre :cl-ppcre-unicode :drakma)
   :serial t
   :components ((:module "src"
                 :components ((:file "packages")
                              (:file "protocols")
                              (:file "tiktoken"))))
   :in-order-to ((test-op (load-op "tokenizers/tests")))
-  :perform (test-op (op c)
-                    (unless
-                        (uiop:symbol-call
-                         :fiveam :run!
-                         (uiop:find-symbol* :tokenizers-suite
-                                            :tokenizers-test.tokenizers-tests))
-                      (error "test failure"))))
+  :perform (asdf:test-op (op c)
+                         (unless
+                             (uiop:symbol-call
+                              :fiveam :run!
+                              (uiop:find-symbol* :tokenizers-suite
+                                                 :tokenizers-test.tokenizers-tests))
+                           (error "test failure"))))
 
-(defsystem tokenizers/tests
+(asdf:defsystem tokenizers/tests
   :author "Joel Boehland <jboehland@gmail.com>"
   :version "0.1.0"
+  :license "MIT"
   :depends-on (:tokenizers :fiveam :cl-csv)
   :serial t
   :components ((:module "test"
                 :components ((:file "packages")
                              (:file "tokenizers-tests")
                              (:file "tiktoken-tests"))))
-  :perform (test-op (op c)
-                    (uiop:symbol-call
-                     :fiveam :run!
-                     (uiop:find-symbol* :tokenizers-suite
-                                        :tokenizers-test.tokenizers-tests))))
+  :perform (asdf:test-op (op c)
+                         (uiop:symbol-call
+                          :fiveam :run!
+                          (uiop:find-symbol* :tokenizers-suite
+                                             :tokenizers-test.tokenizers-tests))))
 
-(defsystem tokenizers/tiktoken-bin
+(asdf:defsystem tokenizers/tiktoken-bin
   :author "Joel Boehland <jboehland@gmail.com>"
   :version "0.1.0"
+  :license "MIT"
   :description "The tiktoken binary command line app."
   :depends-on (:clingon)
   :serial t
   :components ((:module "src"
-                :components ((:file "packages")
-                             (:module "cli"
+                :components ((:module "cli"
                               :components
-                              ((:file "tiktoken"))))))
+                              ((:file "package")
+                               (:file "tiktoken"))))))
   :build-operation "program-op"
   :build-pathname "bin/tiktoken"
   :entry-point "tokenizers.cli.tiktoken:main")
