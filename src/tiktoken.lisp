@@ -50,31 +50,31 @@
 
 (defun get-config-for-encoding (encoding)
   "Find the config for the encoding, signaling error if not found"
-  (loop for config in *codec-configs*
-        when (string= encoding (getf config :name))
-        return config
-        finally (error "No config found for encoding ~a" encoding)))
+  (loop :for config in *codec-configs*
+        :when (string= encoding (getf config :name))
+          :return config
+        :finally (error "No config found for encoding ~a" encoding)))
 
 (defun get-config-for-model (model)
   "Using the *encoding-to-model* alist, find the encoding for the model
   signaling error if not found"
-  (let ((encoding (loop for (enc . models) in *encoding-to-model*
-                        when (member model models :test #'string=)
-                        return enc
-                        finally (error "No encoding found for model ~a" model))))
+  (let ((encoding (loop :for (enc . models) :in *encoding-to-model*
+                        :when (member model models :test #'string=)
+                          :return enc
+                        :finally (error "No encoding found for model ~a" model))))
     (get-config-for-encoding encoding)))
 
 (defun %mergable-ranks->hashtable (blobstring)
   (with-input-from-string (s blobstring)
-      (let ((hash-table (make-hash-table :test 'equalp)))
-        (loop for line = (read-line s nil)
-              while line
-              do (let* ((split-line (cl-ppcre:split "\\s+" line))
-                        (token-bytes (cl-base64:base64-string-to-usb8-array (first split-line)))
-                        (rank (parse-integer (second split-line))))
-                   (setf (gethash token-bytes hash-table) rank)))
+    (let ((hash-table (make-hash-table :test 'equalp)))
+      (loop :for line = (read-line s nil)
+            :while line
+            :do (let* ((split-line (cl-ppcre:split "\\s+" line))
+                       (token-bytes (cl-base64:base64-string-to-usb8-array (first split-line)))
+                       (rank (parse-integer (second split-line))))
+                  (setf (gethash token-bytes hash-table) rank)))
 
-        hash-table)))
+      hash-table)))
 
 (defun %maybe-load-cached-tiktoken-mergeable-ranks (encoder-name)
   (let ((cache-file-path (merge-pathnames (format nil "~a.tiktoken" encoder-name) *mergable-ranks-blob-cache-dir*)))
@@ -101,8 +101,7 @@
 (defun %ensure-string (sym-or-kw-or-string)
   (etypecase sym-or-kw-or-string
     (string sym-or-kw-or-string)
-    (symbol (symbol-name sym-or-kw-or-string))
-    (keyword (keyword-name sym-or-kw-or-string))))
+    (symbol (string-downcase (symbol-name sym-or-kw-or-string)))))
 
 (defun %reverse-hashtable (hashtable)
   (let ((new-hashtable (make-hash-table
@@ -138,7 +137,7 @@
 
 (defun %get-encoder-for-model (model-name)
   (let  ((config (get-config-for-model (%ensure-string model-name))))
-    (get-encoder (getf config :name))))
+    (%get-encoder (getf config :name))))
 
 (defmethod get-encoder ((provider (eql :tiktoken)) (model-name string))
   (%get-encoder model-name))
@@ -158,10 +157,8 @@
                         (subseq parts (+ i 2))))
          (write-tokens-to-buffer (parts)
            (loop :for part :across parts
-                 :do (if-let ((token (gethash part mergeable-ranks)))
-                       (progn
-                         (vector-push-extend token token-buffer))
-                       (log:info "part not found: ~a" part)))))
+                 :do (when-let ((token (gethash part mergeable-ranks)))
+                       (vector-push-extend token token-buffer)))))
     ;; Transformation of input
     (let ((parts (map 'simple-vector (lambda (b) (vector b)) input))
           (min-rank nil)
@@ -190,7 +187,6 @@
   (let* ((parts (cl-ppcre:all-matches-as-strings (split-regexp encoder) text))
          (parts-as-utf8-bytes (mapcar #'(lambda (part) (babel:string-to-octets part :encoding :utf-8)) parts)))
     (assert (every #'string= parts (mapcar (lambda (bytes) (babel:octets-to-string bytes :encoding :utf-8)) parts-as-utf8-bytes)))
-    (log:info "parts: ~a" parts)
     ;; XXX--TODO: make token buffer size informed by the size of the input
     (let ((token-buffer (make-array 1024 :element-type 'integer :adjustable t :fill-pointer 0)))
       (loop :for part :in parts-as-utf8-bytes
