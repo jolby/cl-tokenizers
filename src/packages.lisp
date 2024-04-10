@@ -6,7 +6,7 @@
    #:encode
    #:decode))
 
-(defpackage :tokenizers.tiktokken
+(defpackage :tokenizers.tiktoken
   (:use :cl :alexandria)
   (:import-from #:tokenizers
                 #:get-encoder
@@ -19,9 +19,9 @@
    #:encode
    #:decode))
 
-(defpackage :tokenizers.cli.tiktokken
+(defpackage :tokenizers.cli.tiktoken
   (:use :cl :clingon)
-  (:import-from #:tokenizers.tiktokken
+  (:import-from #:tokenizers.tiktoken
                 #:get-encoder
                 #:get-encoder-for-model
                 #:encode

@@ -1,4 +1,4 @@
-(in-package :tokenizers.tiktokken)
+(in-package :tokenizers.tiktoken)
 
 ;; (ql:quickload '(:cl-ppcre :log4cl :cl-base64 :drakma))
 (defconstant +endoftext+ "<|endoftext|>")
@@ -140,10 +140,10 @@
   (let  ((config (get-config-for-model (%ensure-string model-name))))
     (get-encoder (getf config :name))))
 
-(defmethod get-encoder ((provider (eql :tiktokken)) (model-name string))
+(defmethod get-encoder ((provider (eql :tiktoken)) (model-name string))
   (%get-encoder model-name))
 
-(defmethod get-encoder-for-model ((provider (eql :tiktokken)) (model-name string))
+(defmethod get-encoder-for-model ((provider (eql :tiktoken)) (model-name string))
   (%get-encoder-for-model model-name))
 
 (defun bpe-encode (mergeable-ranks input token-buffer)

@@ -4,7 +4,7 @@
    :tokenizers-suite
    :tokenizers-suite-exists))
 
-(defpackage :tokenizers-test.tiktokken-tests
+(defpackage :tokenizers-test.tiktoken-tests
   (:use :cl :fiveam)
   (:import-from #:tokenizers
                 #:get-encoder
@@ -15,4 +15,4 @@
    :tokenizers-test.tokenizers-tests
    :tokenizers-suite)
   (:export
-   :tiktokken-suite-exists))
+   :tiktoken-suite-exists))

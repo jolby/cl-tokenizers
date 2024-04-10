@@ -1,12 +1,12 @@
-(in-package :tokenizers-test.tiktokken-tests)
+(in-package :tokenizers-test.tiktoken-tests)
 
-(def-suite tiktokken-suite :in tokenizers-suite)
+(def-suite tiktoken-suite :in tokenizers-suite)
 
-(in-suite tiktokken-suite)
+(in-suite tiktoken-suite)
 
 (defparameter *test-files-directory* (asdf:system-relative-pathname :tokenizers "data/test/"))
 
-(defparameter *cl100k-base-encoder* (get-encoder :tiktokken "cl100k_base"))
+(defparameter *cl100k-base-encoder* (get-encoder :tiktoken "cl100k_base"))
 (defparameter *test-strings*
   (list "This is a test string."
         "This is another test string."
@@ -27,7 +27,7 @@
 
 (defun test-encoder-from-file (encoder-name file-name)
   (let ((idx 0)
-        (encoder (get-encoder :tiktokken encoder-name))
+        (encoder (get-encoder :tiktoken encoder-name))
         (csv-file-path (get-model-test-file-path file-name)))
     (assert (probe-file csv-file-path))
     (log:info "Testing encoder ~a from file ~a" encoder csv-file-path)
@@ -43,13 +43,13 @@
     (log:info "Tested ~A rows." idx)))
 ;; (test-encoder-from-file "cl100k_base" "cl100k_base_encodings")
 ;; (assert (probe-file (get-model-test-file-path "cl100k_base_encodings")))
-(test tiktokken-suite-exists
+(test tiktoken-suite-exists
   (is-true t))
 
-(test tiktokken-cl100k-base-encoder-exists
+(test tiktoken-cl100k-base-encoder-exists
   (is-true (not (null  *cl100k-base-encoder*))))
 
-(test tiktokken-simple-known-encoding-value-equal
+(test tiktoken-simple-known-encoding-value-equal
   (let ((known-encoding (encode *cl100k-base-encoder* "hello world")))
     (is (equalp known-encoding #(15339 1917)))))
 
@@ -60,10 +60,10 @@
 (test cl100k-csv-round-trip-testing
   (test-encoder-from-file "cl100k_base" "cl100k_base_encodings"))
 
-;; (run! 'tokenizers-test.tiktokken-tests:tiktokken-suite-exists)
-;; (run! 'tokenizers-test.tiktokken-tests::tiktokken-cl100k-base-encoder-exists)
-;; (run! 'tokenizers-test.tiktokken-tests::tiktokken-simple-known-encoding-value-equal)
-;; (run! 'tokenizers-test.tiktokken-tests::simple-round-trip-testing-1)
-;; (run! 'tokenizers-test.tiktokken-tests::cl100k-csv-round-trip-testing)
+;; (run! 'tokenizers-test.tiktoken-tests:tiktoken-suite-exists)
+;; (run! 'tokenizers-test.tiktoken-tests::tiktoken-cl100k-base-encoder-exists)
+;; (run! 'tokenizers-test.tiktoken-tests::tiktoken-simple-known-encoding-value-equal)
+;; (run! 'tokenizers-test.tiktoken-tests::simple-round-trip-testing-1)
+;; (run! 'tokenizers-test.tiktoken-tests::cl100k-csv-round-trip-testing)
 ;; (encode *cl100k-base-encoder* "hello world")
  ; => #(15339 1917)
