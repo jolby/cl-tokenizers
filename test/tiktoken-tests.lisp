@@ -30,7 +30,6 @@
         (encoder (get-encoder :tiktoken encoder-name))
         (csv-file-path (get-model-test-file-path file-name)))
     (assert (probe-file csv-file-path))
-    (log:info "Testing encoder ~a from file ~a" encoder csv-file-path)
     (cl-csv:do-csv (row csv-file-path)
       (when (> idx 0)
         (let ((text (first row))
@@ -39,8 +38,7 @@
           (declare (ignore truncated-token-list))
           (is (equalp token-list (encode encoder text)))
           (is (string= text (decode encoder token-list)))))
-      (incf idx))
-    (log:info "Tested ~A rows." idx)))
+      (incf idx))))
 ;; (test-encoder-from-file "cl100k_base" "cl100k_base_encodings")
 ;; (assert (probe-file (get-model-test-file-path "cl100k_base_encodings")))
 (test tiktoken-suite-exists
