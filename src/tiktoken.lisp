@@ -1,11 +1,11 @@
 (in-package :tokenizers.tiktoken)
 
 ;; (ql:quickload '(:cl-ppcre :log4cl :cl-base64 :drakma))
-(defconstant +endoftext+ "<|endoftext|>")
-(defconstant +fim-prefix+ "<|fim_prefix|>")
-(defconstant +fim-middle+ "<|fim_middle|>")
-(defconstant +fim-suffix+ "<|fim_suffix|>")
-(defconstant +endofprompt+ "<|endofprompt|>")
+(define-constant +endoftext+ "<|endoftext|>" :test #'string=)
+(define-constant +fim-prefix+ "<|fim_prefix|>" :test #'string=)
+(define-constant +fim-middle+ "<|fim_middle|>" :test #'string=)
+(define-constant +fim-suffix+ "<|fim_suffix|>" :test #'string=)
+(define-constant +endofprompt+ "<|endofprompt|>" :test #'string=)
 
 (defparameter *mergable-ranks-blob-cache-dir* (uiop:xdg-cache-home "mergable-ranks-blobs"))
 
