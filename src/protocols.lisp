@@ -9,5 +9,5 @@
 (defgeneric encode (encoder thing-to-encode)
   (:documentation "Encode something (string, file, bytes etc.) using the given encoder"))
 
-(defgeneric decode (encoder tokens)
-  (:documentation "Decode a sequence of tokens using the given encoder"))
+(defgeneric decode (encoder thing-to-decode)
+  (:documentation "Decode something (string, file, array of bytes etc.) using the given encoder"))
