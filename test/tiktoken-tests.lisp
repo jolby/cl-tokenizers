@@ -7,6 +7,8 @@
 (defparameter *test-files-directory* (asdf:system-relative-pathname :tokenizers "data/test/"))
 
 (defparameter *cl100k-base-encoder* (get-encoder :tiktoken "cl100k_base"))
+(defparameter *o200k-base-encoder* (get-encoder :tiktoken "o200k_base"))
+
 (defparameter *test-strings*
   (list "This is a test string."
         "This is another test string."
@@ -56,8 +58,10 @@
         :do (is (string= string (decode *cl100k-base-encoder* (encode *cl100k-base-encoder* string))))))
 
 (test cl100k-csv-round-trip-testing
-  (test-encoder-from-file "cl100k_base" "cl100k_base_encodings"))
+  (test-encoder-from-file "cl100k_base" "cl100k_base_encodings")
+  (test-encoder-from-file "o200k_base" "o200k_base_encodings"))
 
+;; (ql:quickload '(:tokenizers :tokenizers/tests))
 ;; (run! 'tokenizers-test.tiktoken-tests:tiktoken-suite-exists)
 ;; (run! 'tokenizers-test.tiktoken-tests::tiktoken-cl100k-base-encoder-exists)
 ;; (run! 'tokenizers-test.tiktoken-tests::tiktoken-simple-known-encoding-value-equal)
