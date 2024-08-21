@@ -22,7 +22,26 @@
     ("gpt2" . ("gpt2"))))
 
 (defparameter *codec-configs*
-  '((:name "cl100k_base"
+  `((:name "o200k_base"
+     :pat-str ,(concatenate
+                'string
+                "[^\\r\\n\\p{L}\\p{N}]?[\\p{Lu}\\p{Lt}\\p{Lm}\\p{Lo}\\p{M}]*[\\p{Ll}\\p{Lm}\\p{Lo}\\p{M}]+(?i:'s|'t|'re|'ve|'m|'ll|'d)?"
+                "|"
+                "[^\\r\\n\\p{L}\\p{N}]?[\\p{Lu}\\p{Lt}\\p{Lm}\\p{Lo}\\p{M}]+[\\p{Ll}\\p{Lm}\\p{Lo}\\p{M}]*(?i:'s|'t|'re|'ve|'m|'ll|'d)?"
+                "|"
+                "\\p{N}{1,3}"
+                "|"
+                " ?[^\\s\\p{L}\\p{N}]+[\\r\\n/]*"
+                "|"
+                "s*[\\r\\n]+"
+                "|"
+                "\\s+(?!\\S)"
+                "|"
+                "\\s+")
+     :mergeable-ranks-blob-url "https://openaipublic.blob.core.windows.net/encodings/o200k_base.tiktoken"
+     :special-tokens ((+endoftext+ . 199999)
+                      (+endofprompt+ . 200018)))
+    (:name "cl100k_base"
      :pat-str "(?i:'s|'t|'re|'ve|'m|'ll|'d)|[^\\r\\n\\p{L}\\p{N}]?\\p{L}+|\\p{N}{1,3}| ?[^\\s\\p{L}\\p{N}]+[\\r\\n]*|\\s*[\\r\\n]+|\\s+(?!\\S)|\\s+"
      :mergeable-ranks-blob-url "https://openaipublic.blob.core.windows.net/encodings/cl100k_base.tiktoken"
      :special-tokens ((+endoftext+ . 100257)
