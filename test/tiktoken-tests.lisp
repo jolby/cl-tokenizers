@@ -69,3 +69,5 @@
 ;; (run! 'tokenizers-test.tiktoken-tests::cl100k-csv-round-trip-testing)
 ;; (encode *cl100k-base-encoder* "hello world")
  ; => #(15339 1917)
+;; (encode *o200k-base-encoder* "hello world")
+ ; => #(24912 2375)
