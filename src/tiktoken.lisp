@@ -9,8 +9,19 @@
 
 (defparameter *mergable-ranks-blob-cache-dir* (uiop:xdg-cache-home "mergable-ranks-blobs"))
 
+(defparameter *model-prefix-to-encoding*
+  '(("gpt-4o-" . "o200k_base")          ; e.g., gpt-4o-2024-05-13
+    ("gpt-4-" . "cl100k_base")          ; e.g., gpt-4-0314, etc., plus gpt-4-32k
+    ("gpt-3.5-turbo-" . "cl100k_base")  ; e.g., gpt-3.5-turbo-0301, -0401, etc.
+    ("gpt-35-turbo-" . "cl100k_base")   ; Azure deployment name
+    ("ft:gpt-4" . "cl100k_base")
+    ("ft:gpt-3.5-turbo" . "cl100k_base")
+    ("ft:davinci-002" . "cl100k_base")
+    ("ft:babbage-002" . "cl100k_base")))
+
 (defparameter *encoding-to-model*
-  '(("cl100k_base" . ("gpt-4" "gpt-3.5-turbo" "text-embedding-ada-002"))
+  '(("o200k_base" . ("gpt-4o"))
+    ("cl100k_base" . ("gpt-4" "gpt-3.5-turbo" "gpt-3.5" "text-embedding-ada-002" "text-embedding-3-small" "text-embedding-3-large"))
     ("r50k_base" . ("ada" "babbage" "code-search-ada-code-001" "code-search-babbage-code-001"
                     "curie" "davinci" "text-ada-001" "text-babbage-001" "text-curie-001" "text-davinci-001"
                     "text-similarity-ada-001" "text-similarity-babbage-001" "text-similarity-curie-001"
@@ -52,20 +63,20 @@
     (:name "p50k_edit"
      :pat-str "'s|'t|'re|'ve|'m|'ll|'d| ?\\p{L}+| ?\\p{N}+| ?[^\\s\\p{L}\\p{N}]+|\\s+(?!\\S)|\\s+"
      :mergeable-ranks-blob-url "https://openaipublic.blob.core.windows.net/encodings/p50k_base.tiktoken"
-     :special-tokens '((+endoftext+ 50256)
-                       (+fim-prefix+ 50281)
-                       (+fim-middle+ 50282)
-                       (+fim-suffix+ 50283)))
+     :special-tokens ((+endoftext+ . 50256)
+                       (+fim-prefix+ . 50281)
+                       (+fim-middle+ . 50282)
+                       (+fim-suffix+ . 50283)))
     (:name "p50k_base"
      :explicit-n-vocab 50281
      :pat-str "'s|'t|'re|'ve|'m|'ll|'d| ?\\p{L}+| ?\\p{N}+| ?[^\\s\\p{L}\\p{N}]+|\\s+(?!\\S)|\\s+"
      :mergeable-ranks-blob-url "https://openaipublic.blob.core.windows.net/encodings/p50k_base.tiktoken"
-     :special-tokens '((+endoftext+ 50256)))
+     :special-tokens ((+endoftext+ . 50256)))
     (:name "r50k_base"
      :explicit-n-vocab 50257
      :pat-str "'s|'t|'re|'ve|'m|'ll|'d| ?\\p{L}+| ?\\p{N}+| ?[^\\s\\p{L}\\p{N}]+|\\s+(?!\\S)|\\s+"
-     :mergable-ranks-blob-url "https://openaipublic.blob.core.windows.net/encodings/r50k_base.tiktoken"
-     :special-tokens  '((+endoftext+ 50256)))))
+     :mergeable-ranks-blob-url "https://openaipublic.blob.core.windows.net/encodings/r50k_base.tiktoken"
+     :special-tokens  ((+endoftext+ . 50256)))))
 
 (defun get-config-for-encoding (encoding)
   "Find the config for the encoding, signaling error if not found"
@@ -74,14 +85,23 @@
           :return config
         :finally (error "No config found for encoding ~a" encoding)))
 
+(defun %get-encoding-name-for-model (model)
+  (let ((encoding-name (loop :for (enc . models) :in *encoding-to-model*
+                        :when (member model models :test #'string=)
+                          :return enc)))
+    (unless encoding-name
+      (warn "No encoding found for model ~a. Trying encoder with prefix" model)
+      (setf encoding-name (loop :for (prefix . enc) :in *model-prefix-to-encoding*
+                                :when (search prefix model :test #'string=)
+                                  :return enc))
+      (unless encoding-name
+        (error "No encoding found for model ~a" model)))
+    encoding-name))
+
 (defun get-config-for-model (model)
   "Using the *encoding-to-model* alist, find the encoding for the model
   signaling error if not found"
-  (let ((encoding (loop :for (enc . models) :in *encoding-to-model*
-                        :when (member model models :test #'string=)
-                          :return enc
-                        :finally (error "No encoding found for model ~a" model))))
-    (get-config-for-encoding encoding)))
+    (get-config-for-encoding (%get-encoding-name-for-model model)))
 
 (defun %mergable-ranks->hashtable (blobstring)
   (with-input-from-string (s blobstring)
@@ -158,8 +178,8 @@
   (let  ((config (get-config-for-model (%ensure-string model-name))))
     (%get-encoder (getf config :name))))
 
-(defmethod get-encoder ((provider (eql :tiktoken)) (model-name string))
-  (%get-encoder model-name))
+(defmethod get-encoder ((provider (eql :tiktoken)) (encoder-name string))
+  (%get-encoder encoder-name))
 
 (defmethod get-encoder-for-model ((provider (eql :tiktoken)) (model-name string))
   (%get-encoder-for-model model-name))

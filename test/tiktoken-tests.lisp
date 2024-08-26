@@ -9,6 +9,16 @@
 (defparameter *cl100k-base-encoder* (get-encoder :tiktoken "cl100k_base"))
 (defparameter *o200k-base-encoder* (get-encoder :tiktoken "o200k_base"))
 
+(defparameter *good-model-names*
+  '("gpt-3.5-turbo" "gpt-3.5-turbo-with-suffix"
+    "gpt-4-" "gpt-4-with-suffix"
+    "gpt-4o-" "gpt-4o-with-suffix")
+    "Names of models that should be able to be looked up in the tokenizers system.")
+
+(defparameter *good-encoder-names*
+  '("o200k_base" "cl100k_base" "r50k_base" "p50k_base" "p50k_edit")
+  "Names of encoders that should be able to be looked up in the tokenizers system.")
+
 (defparameter *test-strings*
   (list "This is a test string."
         "This is another test string."
@@ -49,6 +59,24 @@
 (test tiktoken-cl100k-base-encoder-exists
   (is-true (not (null  *cl100k-base-encoder*))))
 
+(test encoding-name-for-model-lookup
+  (mapcar (lambda (model-name)
+            (is-true (not (null (tokenizers.tiktoken::%get-encoding-name-for-model model-name)))))
+          *good-model-names*))
+;; (mapcar (lambda (model-name) (tokenizers.tiktoken::%get-encoding-name-for-model model-name)) *good-model-names*)
+
+(test lookup-encoder-for-encoder-name
+  (mapcar (lambda (model-name)
+            (is-true (not (null (get-encoder :tiktoken model-name)))))
+          *good-encoder-names*))
+;; (mapcar (lambda (model-name) (get-encoder :tiktoken model-name)) *good-encoder-names*)
+
+(test lookup-encoder-for-model
+  (mapcar (lambda (model-name)
+            (is-true (not (null (get-encoder-for-model :tiktoken model-name)))))
+          *good-model-names*))
+;; (mapcar (lambda (model-name) (get-encoder-for-model :tiktoken model-name)) *good-model-names*)
+
 (test tiktoken-simple-known-encoding-value-equal
   (let ((known-encoding (encode *cl100k-base-encoder* "hello world")))
     (is (equalp known-encoding #(15339 1917)))))
@@ -61,10 +89,15 @@
   (test-encoder-from-file "cl100k_base" "cl100k_base_encodings")
   (test-encoder-from-file "o200k_base" "o200k_base_encodings"))
 
+;; Predicates: is is-every is-false is-true signals finishes
+
 ;; (ql:quickload '(:tokenizers :tokenizers/tests))
 ;; (run! 'tokenizers-test.tiktoken-tests:tiktoken-suite-exists)
 ;; (run! 'tokenizers-test.tiktoken-tests::tiktoken-cl100k-base-encoder-exists)
 ;; (run! 'tokenizers-test.tiktoken-tests::tiktoken-simple-known-encoding-value-equal)
+;; (run! 'tokenizers-test.tiktoken-tests::encoding-name-for-model-lookup)
+;; (run! 'tokenizers-test.tiktoken-tests::lookup-encoder-for-encoder-name)
+;; (run! 'tokenizers-test.tiktoken-tests::lookup-encoder-for-model)
 ;; (run! 'tokenizers-test.tiktoken-tests::simple-round-trip-testing-1)
 ;; (run! 'tokenizers-test.tiktoken-tests::cl100k-csv-round-trip-testing)
 ;; (encode *cl100k-base-encoder* "hello world")
