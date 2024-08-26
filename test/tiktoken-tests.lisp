@@ -85,7 +85,7 @@
   (loop :for string :in *test-strings*
         :do (is (string= string (decode *cl100k-base-encoder* (encode *cl100k-base-encoder* string))))))
 
-(test cl100k-csv-round-trip-testing
+(test csv-round-trip-testing
   (test-encoder-from-file "cl100k_base" "cl100k_base_encodings")
   (test-encoder-from-file "o200k_base" "o200k_base_encodings"))
 
@@ -99,7 +99,7 @@
 ;; (run! 'tokenizers-test.tiktoken-tests::lookup-encoder-for-encoder-name)
 ;; (run! 'tokenizers-test.tiktoken-tests::lookup-encoder-for-model)
 ;; (run! 'tokenizers-test.tiktoken-tests::simple-round-trip-testing-1)
-;; (run! 'tokenizers-test.tiktoken-tests::cl100k-csv-round-trip-testing)
+;; (run! 'tokenizers-test.tiktoken-tests::csv-round-trip-testing)
 ;; (encode *cl100k-base-encoder* "hello world")
  ; => #(15339 1917)
 ;; (encode *o200k-base-encoder* "hello world")
